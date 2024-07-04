@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: trilha-back-end
+  labels:
+    app: trilha-back-end
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: trilha-back-end
+  template:
+    metadata:
+      labels:
+        app: trilha-back-end
+    spec:
+      containers:
+        - name: trilha-back-end
+          image: creito/authorization-service
+          ports:
+            - containerPort: 3000
+          resources:
+            requests:
+              memory: "248Mi"
+              cpu: "147m"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: trilha-back-end
+spec:
+  selector:
+    app: trilha-back-end
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: trilha-back-end
+  namespace: default
+  annotations:
+    kubernetes.io/ingress.class: traefik
+spec:
+  rules:
+    - host: desafio.eventshare.com.br
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: trilha-back-end
+                port:
+                  number: 3000

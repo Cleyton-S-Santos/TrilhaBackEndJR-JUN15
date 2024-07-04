@@ -1,0 +1,29 @@
+ame: Build and Deploy to Kubernetes
+
+on:
+  push:
+    branches:
+      - main  
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    env:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      IMAGE_TAG: ${{ github.sha }}
+
+    - name: Checkout código
+      uses: actions/checkout@v2
+
+    - name: Login no Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Build da imagem Docker
+      run: |
+        docker build -t $DOCKERHUB_USERNAME/desafio:$IMAGE_TAG .
+    
+    - name: Push da imagem Docker para o Docker Hub
+      run: |
+        docker push $DOCKERHUB_USERNAME/desafio:$IMAGE_TAG
